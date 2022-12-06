@@ -22,16 +22,17 @@ def initialize_cgpt_exceptions():
         last_frame = x[-1]
         match = re.search('File "(.*)", line \d+', last_frame)
         last_filename = match.group(1)
-        with open(last_filename, "r") as f:
-            lastfile = f.read()
+        last_file_prompt = ""
+        if last_filename != "<stdin>":
+            with open(last_filename, "r") as f:
+                last_file = f.read()
+                last_file_prompt = f"from the following code:\n```\n{last_file}\n```"
         print("\nLet's see what ChatGPT has to say...\n")
         chatbot.reset_chat()
         chatbot.refresh_session()
         resp = chatbot.get_chat_response(
             f"""
-            Please correct the following exception:\n
-            ```\n{tb_string}\n```\n
-            from the following code:\n```\n{lastfile}\n```
+            Please correct the following python exception:\n```\n{tb_string}\n```\n{last_file_prompt}
             """,
             output="text",
         )
